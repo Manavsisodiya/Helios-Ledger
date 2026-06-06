@@ -1,0 +1,45 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Web Framework
+    implementation 'com.sparkjava:spark-core:2.9.4'
+    
+    // Database Driver & Hikari Connection Pooling
+    implementation 'org.postgresql:postgresql:42.6.0'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+    
+    // jOOQ for safe type-safe SQL
+    implementation 'org.jooq:jooq:3.18.5'
+    
+    // Jedis Client for Redis Caching/Locking
+    implementation 'redis.clients:jedis:5.0.0'
+    
+    // JSON processing
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // Logging 
+    implementation 'org.slf4j:slf4j-simple:2.0.7'
+    
+    // Use Spock for testing
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+}
+
+application {
+    // Tells Gradle where your main class lives
+    mainClass = 'apex.App'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    // Force terminal to print test progress live
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}

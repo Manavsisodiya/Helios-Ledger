@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # 1. Relational System of Record
+  postgres:
+    image: postgres:15-alpine
+    container_name: apex-postgres
+    environment:
+      POSTGRES_USER: apex_user
+      POSTGRES_PASSWORD: apex_password
+      POSTGRES_DB: apex_ledger
+    ports:
+      - "5432:5432"
+    volumes:
+      # Automatically runs our schema on startup
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/init.sql
+      # Saves the database data onto your Mac's hard drive so it survives restarts
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apex_user -d apex_ledger"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. In-Memory Distributed Cache
+  redis:
+    image: redis:7-alpine
+    container_name: apex-redis
+    ports:
+      - "6379:6379"
+
+  # 3. The SparkJava Core Settlement API Engine
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apex-api
+    ports:
+      - "8080:8080"
+    environment:
+      # We change 'localhost' to the container names because they share a Docker network!
+      - DB_URL=jdbc:postgresql://postgres:5432/apex_ledger
+      - REDIS_URL=redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  postgres_data:
