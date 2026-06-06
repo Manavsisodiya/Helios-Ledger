@@ -36,8 +36,7 @@ import {
 } from "lucide-react";
 
 
-const API_BASE = "http://localhost:8080";
-
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 const CURRENCY_META = {
   GBP: { symbol: "\u00A3", locale: "en-GB", flag: "\uD83C\uDDEC\uD83C\uDDE7", name: "British Pound" },
   USD: { symbol: "$", locale: "en-US", flag: "\uD83C\uDDFA\uD83C\uDDF8", name: "US Dollar" },
